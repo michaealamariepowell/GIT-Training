@@ -1,0 +1,161 @@
+---
+title: "Compile Test"
+author: "Michaela Powell"
+date: "September 26, 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Q2
+
+Given $p(\theta)=1$, with $0 \leq \theta \leq 1$, we consider $\Lambda=log(\frac{\theta}{1-\theta})$.
+
+\vspace{4mm}
+
+#### (A)
+
+\vspace{2mm}
+
+We find $p(\Lambda)$:
+
+
+$$ \Lambda = g(\theta)=log(\frac{\theta}{1-\theta})\qquad \Longrightarrow\qquad \theta = g^{-1}(\Lambda)=\frac{e^{\Lambda}}{1+e^{\Lambda}}$$
+
+It follows that:
+
+$$ p(\Lambda)=p(\theta = \frac{e^{\Lambda}}{1+e^{\Lambda}})
+|\frac{d}{d\Lambda}\frac{e^{\Lambda}}{1+e^{\Lambda}}|=|\frac{d}{d\Lambda}\frac{e^{\Lambda}}{1+e^{\Lambda}}|=\frac{e^{\Lambda}}{(e^{\Lambda}+1)^{2}}$$
+
+So, $p(\Lambda)=\frac{e^{\Lambda}}{(e^{\Lambda}+1)^{2}}$ for $0<\Lambda<\infty$.
+
+\vspace{4mm}
+
+#### (B)
+
+\vspace{2mm}
+
+Now, we consider what the implied prior distribution of $\theta$ would be if $p(\Lambda) \propto 1$.
+
+$$p(\theta)=p(\Lambda=log(\frac{\theta}{1-\theta}))|\frac{d}{d\theta}log(\frac{\theta}{1-\theta})|=\frac{1}{\theta(1-\theta)}$$
+
+So, $p(\theta)=\frac{1}{\theta(1-\theta)}$ for $0<\theta<1$, or $\theta \sim Uniform(\theta^{2},\theta)$.
+
+\vspace{4mm}
+
+#### (C)
+
+\vspace{2mm}
+
+We see that, making a logistic transformation on a uniform prior _does not_ result in a uniform prior; however, making an inverse logit transformation on a uniform prior _does_ result in a uniform prior.  It is very interesting that the uniform-to-uniform relationship does not hold moving in both directions.    
+
+
+\vspace{8mm}
+
+##Q3
+
+In class we showed that if $y_{1},...,y_{n} \sim Poisson(\theta)$ and $p(\theta) \sim Gamma(a,b)$, then $\theta|y_{1},...,y_{n} \sim Gamma(a+\sum{y_{i}},b+n)$.
+
+####(A)
+
+\vspace{2mm}
+
+__First we will consider mice strain A.__
+
+\vspace{4mm}
+
+We know that $\sum{y_{i}}=117$ and $n=10$.  
+
+\vspace{4mm}
+
+With $\theta_{A} \sim gamma(120,10)$, it follows that:
+
+$$\theta_{A}|y_{1},...,y_{10} \sim gamma(237,20)$$
+
+This gives us:
+
+$$E[\theta_{A}|y_{1},...,y_{10}]=\frac{237}{20}=11.85$$
+
+And:
+
+$$Var(\theta_{A}|y_{1},...,y_{10})=\frac{237}{20^{2}}=0.5925$$
+
+We calculate a 95% credible interval for $\theta_{A}$:
+
+```{r, echo=TRUE, include=TRUE}
+c(qgamma(0.025,237,20),qgamma(0.975,237,20))
+
+```
+
+\vspace{4mm}
+
+__Now we will consider mice strain B.__
+
+\vspace{4mm}
+
+We know that $\sum{y_{i}}=113$ and $n=13$.  
+
+\vspace{4mm}
+
+With $\theta_{B} \sim gamma(12,1)$, it follows that:
+
+$$\theta_{A}|y_{1},...,y_{13} \sim gamma(125,14)$$
+
+This gives us:
+
+$$E[\theta_{A}|y_{1},...,y_{13}]=\frac{125}{14}=8.9286$$
+
+And:
+
+$$Var(\theta_{A}|y_{1},...,y_{13})=\frac{125}{14^{2}}=0.6378$$
+
+We calculate a 95% credible interval for $\theta_{B}$:
+
+```{r, echo=TRUE, include=TRUE}
+c(qgamma(0.025,125,14),qgamma(0.975,125,14))
+
+```
+
+\vspace{4mm}
+
+####(B)
+
+\vspace{2mm}
+
+```{r, echo=TRUE, include=TRUE,fig.width=4, fig.height=3, fig.align="center"}
+n <- seq(1,50,1)
+expectation <- matrix(data=0, nrow=1, ncol=50)
+for(j in 1:50)
+{
+  expectation[j] <- (113+12*n[j])/(13+n[j])
+}
+plot(n,expectation,main="Posterior Expectations",xlab="prior multiplier",ylab="expectation")
+```
+
+This plot indicates that for posterior expectation of $\theta_{B}$ to be similar to that of $\theta_{A}$, the number of "prior observations"" $(n_{0})$ must be large.
+
+\vspace{8mm}
+
+##Q4
+
+We have that $Y \sim binomial(n,\theta)$.  We wish to determine Jeffrey's prior, $p_{j}(\theta) \propto \sqrt{I(\theta)}$ where $I(\theta)$ is the Fisher information.
+
+$$p(Y|\theta)={n \choose y}\theta^{y}(1-\theta)^{n-y}$$
+
+$$log[p(Y|\theta)]=log({n \choose y})+ylog(\theta)+nlog(1-\theta)-ylog(1-\theta)$$
+
+$$\frac{\partial}{\partial\theta}log[p(Y|\theta)]=\frac{y}{\theta}-\frac{n}{1-\theta}+\frac{y}{1-\theta}$$
+
+$$\frac{\partial^{2}}{\partial^{2}\theta}log[p(Y|\theta)]=-\frac{y}{\theta^{2}}-\frac{n}{(1-\theta)^2}+\frac{y}{(1-\theta)^{2}}$$
+
+$$E[\frac{\partial^{2}}{\partial^{2}\theta}log[p(Y|\theta)]]=-\frac{1}{\theta^{2}}E[Y]-\frac{n}{(1-\theta)^{2}}+\frac{1}{(1-\theta)^2}E[Y]=\frac{n}{1-\theta}-\frac{n}{\theta}=-\frac{n}{\theta(1-\theta)}$$
+
+$$I(\theta)=-E[\frac{\partial^{2}}{\partial^{2}\theta}log[p(Y|\theta)]]=\frac{n}{\theta(1-\theta)}$$
+
+\vspace{2mm}
+
+Therefore, Jeffrey's prior is given by $p_{j}(\theta) \propto \sqrt{\frac{n}{\theta(1-\theta)}}$.
+
+
